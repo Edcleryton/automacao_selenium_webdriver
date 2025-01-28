@@ -21,7 +21,7 @@ Este projeto utiliza **Selenium WebDriver** para validar fluxos de login, carrin
 
 ## ⚙️ Pré-Requisitos
 
-- Python 3.x instalado.  
+- Python 3.14 instalado.  
 - [ChromeDriver](https://chromedriver.chromium.org/downloads) compatível com a versão do seu Google Chrome.  
 - Selenium instalado:
   ```bash
