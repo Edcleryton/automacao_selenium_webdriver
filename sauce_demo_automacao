@@ -1,0 +1,117 @@
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+
+# Configurações iniciais
+driver = webdriver.Chrome()  # Ou o caminho para o seu WebDriver
+driver.get("https://www.saucedemo.com/v1/")
+
+# Função para login
+def login(username, password):
+    driver.find_element(By.ID, "user-name").clear()
+    driver.find_element(By.ID, "user-name").send_keys(username)
+    driver.find_element(By.ID, "password").clear()
+    driver.find_element(By.ID, "password").send_keys(password)
+    driver.find_element(By.ID, "login-button").click()
+
+# Função para verificar se o login foi bem-sucedido
+def is_login_successful():
+    try:
+        # Verifica se a página de inventário foi carregada
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.CLASS_NAME, "inventory_list"))
+        )
+        return True
+    except:
+        return False
+
+# Função para verificar se o login falhou
+def is_login_failed():
+    try:
+        # Verifica se a mensagem de erro está presente
+        WebDriverWait(driver, 5).until(
+            EC.presence_of_element_located((By.CSS_SELECTOR, "h3[data-test='error']"))
+        )
+        return True
+    except:
+        return False
+
+# Função para adicionar itens ao carrinho
+def add_to_cart():
+    try:
+        # Adiciona o primeiro item ao carrinho
+        driver.find_element(By.XPATH, "//div[@class='inventory_item'][1]//button").click()
+        # Adiciona o segundo item ao carrinho
+        driver.find_element(By.XPATH, "//div[@class='inventory_item'][2]//button").click()
+        return True
+    except:
+        return False
+
+# Função para ir ao carrinho e finalizar a compra
+def checkout():
+    try:
+        driver.find_element(By.CLASS_NAME, "shopping_cart_link").click()
+        driver.find_element(By.LINK_TEXT, "CHECKOUT").click()
+
+        # Preenche as informações de checkout
+        driver.find_element(By.ID, "first-name").send_keys("John")
+        driver.find_element(By.ID, "last-name").send_keys("Doe")
+        driver.find_element(By.ID, "postal-code").send_keys("12345")
+        driver.find_element(By.CSS_SELECTOR, "input[type='submit']").click()
+
+        # Finaliza a compra
+        driver.find_element(By.LINK_TEXT, "FINISH").click()
+        return True
+    except:
+        return False
+
+# Lista de usuários para teste
+users = [
+    "standard_user",
+    "locked_out_user",
+    "problem_user",
+    "performance_glitch_user"
+]
+password = "secret_sauce"
+
+# Executa os testes para cada usuário
+for user in users:
+    print(f"Testando usuário: {user}")
+    try:
+        # Realiza o login
+        login(user, password)
+
+        # Verifica se o login foi bem-sucedido
+        if is_login_successful():
+            print(f"Login bem-sucedido para o usuário: {user}")
+
+            # Adiciona itens ao carrinho
+            if add_to_cart():
+                print("Itens adicionados ao carrinho com sucesso!")
+            else:
+                print("Falha ao adicionar itens ao carrinho.")
+
+            # Realiza o checkout
+            if checkout():
+                print("Checkout realizado com sucesso!")
+            else:
+                print("Falha ao realizar o checkout.")
+
+        elif is_login_failed():
+            print(f"Login falhou para o usuário: {user}")
+            error_message = driver.find_element(By.CSS_SELECTOR, "h3[data-test='error']").text
+            print(f"Mensagem de erro: {error_message}")
+
+        # Volta para a página de login
+        driver.get("https://www.saucedemo.com/v1/")
+
+    except Exception as e:
+        print(f"Erro durante o teste do usuário {user}: {e}")
+
+    finally:
+        # Limpa o carrinho e volta para a página inicial
+        driver.get("https://www.saucedemo.com/v1/")
+
+# Fecha o navegador
+driver.quit()
