@@ -1,33 +1,30 @@
 from selenium.webdriver.common.by import By
-from .base_page import BasePage
+from pages.base_page import BasePage
 
 class CheckoutPage(BasePage):
-    """Page Object para o fluxo de checkout."""
-
     # --- Localizadores ---
-    # Cart Page
-    CHECKOUT_BUTTON = (By.ID, "checkout")
-    # Checkout Step One
+    CHECKOUT_BUTTON = (By.LINK_TEXT, "CHECKOUT")
     FIRST_NAME_INPUT = (By.ID, "first-name")
     LAST_NAME_INPUT = (By.ID, "last-name")
-    POSTAL_CODE_INPUT = (By.ID, "postal-code")
-    CONTINUE_BUTTON = (By.ID, "continue")
-    # Checkout Step Two
-    FINISH_BUTTON = (By.ID, "finish")
-    # Checkout Complete
-    COMPLETE_HEADER = (By.CLASS_NAME, "complete-header")
+    ZIP_CODE_INPUT = (By.ID, "postal-code")
+    CONTINUE_BUTTON = (By.CSS_SELECTOR, "input[type='submit']")
+    FINISH_BUTTON = (By.LINK_TEXT, "FINISH")
+    SUCCESS_MESSAGE = (By.CLASS_NAME, "complete-header")
 
-    def start_checkout(self):
-        self._click(self.CHECKOUT_BUTTON)
+    def __init__(self, driver):
+        super().__init__(driver)
 
-    def fill_personal_info(self, first_name, last_name, postal_code):
-        self._send_keys(self.FIRST_NAME_INPUT, first_name)
-        self._send_keys(self.LAST_NAME_INPUT, last_name)
-        self._send_keys(self.POSTAL_CODE_INPUT, postal_code)
-        self._click(self.CONTINUE_BUTTON)
+    def proceed_to_checkout(self):
+        self.clicar(self.CHECKOUT_BUTTON)
 
-    def finish_order(self):
-        self._click(self.FINISH_BUTTON)
+    def fill_customer_data(self, first_name, last_name, zip_code):
+        self.escrever(self.FIRST_NAME_INPUT, first_name)
+        self.escrever(self.LAST_NAME_INPUT, last_name)
+        self.escrever(self.ZIP_CODE_INPUT, zip_code)
 
-    def get_completion_message(self):
-        return self._get_text(self.COMPLETE_HEADER)
+    def finish_purchase(self):
+        self.clicar(self.CONTINUE_BUTTON)
+        self.clicar(self.FINISH_BUTTON)
+
+    def get_success_message(self):
+        return self.obter_texto(self.SUCCESS_MESSAGE)

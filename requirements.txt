@@ -1,4 +1,13 @@
-selenium
-pytest
-webdriver-manager
-behave  
+# WebDriver e gerenciamento
+selenium>=4.25.0
+webdriver-manager>=4.0.2
+
+# Testes e BDD
+pytest>=8.3.0
+behave>=1.2.6
+
+# Configurações
+python-dotenv>=1.0.0
+
+# Utilitários úteis
+requests>=2.32.0
