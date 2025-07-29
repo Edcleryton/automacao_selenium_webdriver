@@ -1,42 +1,21 @@
-import pytest
-from pages.login_page import LoginPage
-from pages.inventory_page import InventoryPage
-from pages.checkout_page import CheckoutPage
+from selenium.webdriver.common.by import By
+from pages.base_page import BasePage
 
-def test_successful_purchase_flow(driver):
-    """
-    Testa o fluxo completo de uma compra bem-sucedida usando Page Objects.
-    """
-    login_page = LoginPage(driver)
-    inventory_page = InventoryPage(driver)
-    checkout_page = CheckoutPage(driver)
+class InventoryPage(BasePage):
+    # --- Localizadores ---
+    ADD_TO_CART_BUTTON = (By.XPATH, "//div[text()='{product_name}']/ancestor::div[@class='inventory_item']//button")
+    CART_ICON = (By.CLASS_NAME, "shopping_cart_link")
+    PAGE_TITLE = (By.CLASS_NAME, "product_label")
 
-    # 1. Acessar e fazer login
-    login_page.load().login("standard_user", "secret_sauce")
-    
-    # Verificar se o login foi bem-sucedido e estamos na página de produtos
-    assert inventory_page.get_title() == "Products"
+    def __init__(self, driver):
+        super().__init__(driver)
 
-    # 2. Adicionar item ao carrinho e verificar
-    inventory_page.add_backpack_to_cart()
-    assert inventory_page.get_cart_items_count() == "1"
+    def add_product_to_cart(self, product_name):
+        product_locator = (self.ADD_TO_CART_BUTTON[0], self.ADD_TO_CART_BUTTON[1].format(product_name=product_name))
+        self.clicar(product_locator)
 
-    # 3. Navegar para o carrinho e iniciar o checkout
-    inventory_page.go_to_cart()
-    checkout_page.start_checkout()
+    def go_to_cart(self):
+        self.clicar(self.CART_ICON)
 
-    # 4. Preencher informações e finalizar
-    checkout_page.fill_personal_info("Test", "User", "12345")
-    checkout_page.finish_order()
-
-    # 5. Verificar a mensagem de sucesso
-    assert checkout_page.get_completion_message() == "Thank you for your order!"
-
-def test_locked_out_user_login(driver):
-    """Testa a tentativa de login com um usuário bloqueado."""
-    login_page = LoginPage(driver)
-    login_page.load().login("locked_out_user", "secret_sauce")
-
-    # Verificar a mensagem de erro
-    expected_error = "Epic sadface: Sorry, this user has been locked out."
-    assert expected_error in login_page.get_error_message()
+    def is_inventory_title_visible(self):
+        return self.elemento_esta_visivel(self.PAGE_TITLE)
