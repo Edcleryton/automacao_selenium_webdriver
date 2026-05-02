@@ -1,20 +1,18 @@
 import pytest
 from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+from selenium.webdriver.chrome.service import Service
+from webdriver_manager.chrome import ChromeDriverManager
 
 @pytest.fixture
 def driver():
-    """
-    Esta fixture inicializa e finaliza o WebDriver para cada teste.
-    O Selenium Manager cuidará do download do chromedriver automaticamente.
-    
-    É definida em conftest.py para estar disponível para todos os testes.
-    """
-    # Inicializa o WebDriver
-    driver = webdriver.Chrome()
-    driver.implicitly_wait(10) # Aumentar um pouco a espera implícita é uma boa prática
-    
-    # Disponibiliza o driver para o teste
+    options = Options()
+    options.add_argument('--headless=new')
+    options.add_argument('--no-sandbox')
+    options.add_argument('--disable-dev-shm-usage')
+    options.add_argument('--window-size=1920,1080')
+    service = Service(ChromeDriverManager().install())
+    driver = webdriver.Chrome(service=service, options=options)
+    driver.implicitly_wait(10)
     yield driver
-    
-    # Finaliza o WebDriver após o teste
     driver.quit()
